@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.transaction.aop.ConcurrencyTestAspect;
 import org.example.transaction.entity.DevilFlesh;
 import org.example.transaction.repository.DevilFleshRepository;
+import org.example.transaction.util.CustomThreadFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +45,9 @@ class MissionReportServiceTest {
         long powerCount = -2L;
 
         final AtomicLong dirtyReadResult = new AtomicLong();
-        final ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        final ExecutorService settlementExecutor = Executors.newSingleThreadExecutor(new CustomThreadFactory("정산-스레드"));
+        final ExecutorService dashboardExecutor = Executors.newSingleThreadExecutor(new CustomThreadFactory("마키마-스레드"));
 
         final CountDownLatch updateLatch = new CountDownLatch(1);
         final CountDownLatch readLatch = new CountDownLatch(1);
@@ -53,12 +56,12 @@ class MissionReportServiceTest {
 
         //when
         // 스레드 1: 정산 트랜잭션 실행
-        executorService.submit(() -> {
+        settlementExecutor.submit(() -> {
             missionReportService.settleMission(denjiCount, powerCount);
         });
 
         // 스레드 2: 마키마의 현황판 조회 트랜잭션 실행
-        executorService.submit(() -> {
+        dashboardExecutor.submit(() -> {
             try {
                 log.info("마키마 탐색 대기");
                 updateLatch.await();
@@ -73,10 +76,14 @@ class MissionReportServiceTest {
             }
         });
 
-        executorService.shutdown();
-        if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
-            log.error("스레드 풀이 5초 내에 종료되지 않았습니다.");
-            executorService.shutdownNow();
+        settlementExecutor.shutdown();
+        dashboardExecutor.shutdown();
+
+        if (!settlementExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+            settlementExecutor.shutdownNow();
+        }
+        if (!dashboardExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+            dashboardExecutor.shutdownNow();
         }
 
         //then
