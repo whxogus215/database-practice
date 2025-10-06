@@ -87,6 +87,9 @@ class MissionReportServiceTest {
         }
 
         //then
+
+        // Dirty Read로 인해, 마키마는 덴지의 살점만 추가된 "커밋되지 않은" 데이터를 조회한다.
+        // 만약, 정산 트랜잭션이 "롤백"될 경우, 마키마는 총의 살점 개수를 잘못 알고있게 된다.
         assertThat(dirtyReadResult.get()).isEqualTo(INITIAL_PIECES + denjiCount);
 
         final DevilFlesh finalResult = devilFleshRepository.findById(FIND_ID).get();
