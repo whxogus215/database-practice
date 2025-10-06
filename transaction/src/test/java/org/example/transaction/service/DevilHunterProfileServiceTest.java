@@ -83,7 +83,7 @@ class DevilHunterProfileServiceTest {
         }
 
         //then
-        final List<DevilHunterRank> result = readFuture.get();
+        final List<DevilHunterRank> result = readFuture.get(); // 같은 트랜잭션에서 조회한 결과가 다르게 반영된다. - "Non-RepeatableRead" 발생
         assertThat(result.get(0)).isEqualTo(DevilHunterRank.Middling);
         assertThat(result.get(1)).isEqualTo(DevilHunterRank.Exceptional);
     }
@@ -129,7 +129,7 @@ class DevilHunterProfileServiceTest {
 
         //then
         final List<DevilHunterRank> result = readFuture.get();
-        assertThat(result.get(0)).isEqualTo(DevilHunterRank.Middling);
+        assertThat(result.get(0)).isEqualTo(DevilHunterRank.Middling); // 같은 트랜잭션에서 조회한 결과가 같다.
         assertThat(result.get(1)).isEqualTo(DevilHunterRank.Middling);
     }
 
