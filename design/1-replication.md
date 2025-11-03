@@ -47,7 +47,7 @@
 - 소스 DB : **모든 쓰기 연산을 담당**하며, 트래픽 상황에 따라 읽기 연산도 처리할 수 있습니다.
 - 레플리카 DB : **모든 읽기 연산을 담당**하며, 레플리카 DB가 두 개 이상일 경우, 나머지 한 개는 백업 DB로 존재합니다. 이는 장애 발생 시, 복구 용도로 활용됩니다. 또한, 데이터 분석팀의 분석 쿼리 혹은 배치 작업 등에 레플리카 DB가 활용됩니다.
   
- <img alt="img.png" height="300" src="m1.png" width="500"/>
+ <img alt="img.png" height="300" src="1-replication.png" width="500"/>
  
 ### 3. 쿼리 라우팅 전략
 - SELECT를 제외한 쿼리는 Source DB로 전송합니다. SELECT 쿼리는 Replica DB로 전송합니다.
