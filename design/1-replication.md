@@ -47,7 +47,45 @@
 - 소스 DB : **모든 쓰기 연산을 담당**하며, 트래픽 상황에 따라 읽기 연산도 처리할 수 있습니다.
 - 레플리카 DB : **모든 읽기 연산을 담당**하며, 레플리카 DB가 두 개 이상일 경우, 나머지 한 개는 백업 DB로 존재합니다. 이는 장애 발생 시, 복구 용도로 활용됩니다. 또한, 데이터 분석팀의 분석 쿼리 혹은 배치 작업 등에 레플리카 DB가 활용됩니다.
   
- <img alt="img.png" height="300" src="1-replication.png" width="500"/>
+```mermaid
+flowchart LR
+%% 전체 레이아웃 설정 (왼쪽 -> 오른쪽 배치)
+
+%% Before 섹션
+    subgraph Before_Group [Before]
+        direction TB
+        B_WAS([Was])
+        B_DB[(DB)]
+
+        B_WAS -->|Write & Read| B_DB
+    end
+
+%% 간격 조정을 위한 투명 링크 (선택 사항)
+    Before_Group ~~~ After_Group
+
+%% After 섹션
+    subgraph After_Group [After]
+        direction TB
+        A_WAS([Was])
+        A_Source[(Source)]
+        A_Replica1[(Replica)]
+        A_Replica2[(Replica)]
+
+    %% Write 트래픽
+        A_WAS -->|Write| A_Source
+
+    %% Read 트래픽 (두 개의 Replica로 분산)
+        A_WAS -->|Read| A_Replica1
+        A_Replica1 -.- A_Replica2
+    end
+
+%% 스타일 정의 (옵션: 가독성을 위해)
+    classDef was fill:#fff,stroke:#000,stroke-width:2px;
+    classDef db fill:#fff,stroke:#000,stroke-width:2px;
+    class B_WAS,A_WAS was;
+    class B_DB,A_Source,A_Replica1,A_Replica2 db;
+```
+
  
 ### 3. 쿼리 라우팅 전략
 - SELECT를 제외한 쿼리는 Source DB로 전송합니다. SELECT 쿼리는 Replica DB로 전송합니다.
