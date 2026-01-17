@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: db
+    environment:
+      MYSQL_DATABASE: lock_db
+      MYSQL_ROOT_PASSWORD: 1234
+    ports:
+      - "3306:3306"
