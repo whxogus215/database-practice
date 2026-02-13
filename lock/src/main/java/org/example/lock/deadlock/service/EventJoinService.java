@@ -30,7 +30,7 @@ public class EventJoinService {
                                               .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
 
         event.increaseParticipants();
-        eventRepository.save(event);
+        eventRepository.saveAndFlush(event);
 
         final EventParticipant participant = EventParticipant.builder()
                                                        .event(event)

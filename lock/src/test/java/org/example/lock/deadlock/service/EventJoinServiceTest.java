@@ -40,7 +40,7 @@ class EventJoinServiceTest {
     @BeforeEach
     void setUp() {
         testEvent = eventRepository.save(TestFixture.createEvent("테스트 이벤트", 100));
-        testMembers = memberRepository.saveAll(TestFixture.createTestMembers(100));
+        testMembers = memberRepository.saveAll(TestFixture.createTestMembers(150));
     }
 
     @Test
@@ -62,7 +62,7 @@ class EventJoinServiceTest {
         log.info("이벤트 현재 참가자 수: {}", updatedEvent.getCurrentParticipants());
         log.info("실제 참가자 테이블 레코드 수: {}", actualParticipantCount);
 
-        assertThat(updatedEvent.getCurrentParticipants()).isNotEqualTo(actualParticipantCount);
+        assertThat(updatedEvent.getCurrentParticipants()).isNotEqualTo((int) actualParticipantCount);
         assertThat(updatedEvent.getCurrentParticipants()).isLessThanOrEqualTo(testEvent.getMaxParticipants());
     }
 }
