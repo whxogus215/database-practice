@@ -39,3 +39,49 @@
 ### 고민해 볼 점
 - 트랜잭션의 격리 수준(Isolation Level)을 높이면 이 문제가 해결될까요?
 - 데이터베이스의 락(Lock) 없이 애플리케이션 레벨(Java `synchronized` 등)에서 해결할 때의 문제점은 무엇일까요? (다중 서버 환경 고려)
+
+## Mission 1: 답변
+
+### 테스트 실행 결과
+![m1_test_console.png](m1_test_console.png)
+- 참가자 데이터에 대한 정합성 문제 발생
+
+![update_query_deadlock_console.png](update_query_deadlock_console.png)
+- 이벤트의 참가 인원을 갱신하는 쿼리에서 데드락 문제 발생
+
+### 원인 분석
+
+![tr1_update_deadlock.png](tr1_update_deadlock.png)
+![tr2_update_deadlock_rolback.png](tr2_update_deadlock_rolback.png)
+- MySQL InnoDB의 상태를 조회(`show engine innodb status`)했을 때, 데드락으로 인한 트랜잭션 롤백을 확인 
+
+#### 공유 락이 걸려있는 테이블을 UPDATE할 때, 데드락이 발생
+`Event` 테이블에 `UPDATE` 쿼리를 실행하려면, 배타 락을 통해 다른 트랜잭션에서 수정하지 못하도록 해야 한다.
+하지만, `UPDATE` 전에 `Event`에 대한 공유 락이 걸려있는 상태이고, 이는 다른 트랜잭션에서 공유 락을 해제하지 않으면서 데드락이 발생한 것이다.
+
+![innodb_lock.png](innodb_lock.png)
+- FK를 갖고 있는 테이블에 대한 `INSERT`, `UPDATE`, `DELETE` 수행 시 **제약조건 확인을 위해 락이 걸리게 된다.**
+- 즉, `event_participants` 레코드를 추가할 때, 외래 키로 갖고 있는 `event` 레코드에 대한 공유 락이 먼저 걸리게 되는 것이다.
+  - `EventJoinService`의 `joinEvent()` 참고
+##### 정리
+1) `event_participants` 레코드 추가 -> `event` 레코드에 공유 락 걸림
+2) `event_participants` 레코드 추가 후, `event` 레코드 변경을 위해 배타 락을 걸어야 하는데, 다른 트랜잭션도 `1)`로 인해 `event` 레코드에 대한 공유 락을 갖고 있음
+3) `event` 레코드의 모든 공유 락이 해제되기를 기다리다가 끝내 해제되지 않자 **롤백**이 발생
+
+#### 해결 방법
+1) `UPDATE` 쿼리를 먼저 실행해서 배타 락을 먼저 선점하도록 수정
+   - JPA의 쓰기지연으로 인해 flush 될 때, 실행되는 쿼리 우선순위는 `INSERT > UPDATE > DELETE`다. 따라서 엔티티의 변경 이후, **`UPDATE` 쿼리가 먼저 발생하도록 하고, 이로 인한 배타 락을 먼저 선점하여 공유 락으로 인한 데드락 문제를 해결**
+     - [커밋](2e2d0c4c)
+   - ![resolve-deadlock.png](resolve-deadlock.png)
+     - 데드락은 발생하지 않았으나 여전히 동시성 제어가 안되고 있는 상황(참가자를 150명으로 늘리고 테스트한 결과, 150명이 실제 참가자 레코드로 추가됨)
+2) 테이블에 외래 키를 제거
+   - 데이터를 추가하기 전에 연관 테이블에 대한 조회를 어플리케이션 단에서 수행(`findXXX()`) 후, 존재하면 `INSERT`를 진행 
+#### 고민해 볼 점에 대한 답변
+- 트랜잭션의 격리 수준(Isolation Level)을 높이면 이 문제가 해결될까요?
+  - `READ COMMITTED` : 트랜잭션은 커밋된 값만 읽기 때문에 참가 인원이 `99`일 때, 두 트랜잭션이 `99`로 조회해서 결국, 두 개의 레코드가 추가됨
+  - `REPEATABLE READ` : 나중에 실행된 트랜잭션의 변경사항을 읽지 않는 반복 읽기가 가능하기 때문에 마찬가지로 정합성이 깨짐
+  - `SERIALIZABLE` : 해결은 되지만 동시성이 매우 떨어져 현실적으로 사용하기 어렵다.
+  - **따라서 격리 수준만으로는 해결이 안되며, 락의 기능을 활용해야 한다.**
+- 데이터베이스의 락(Lock) 없이 애플리케이션 레벨(Java `synchronized` 등)에서 해결할 때의 문제점은 무엇일까요? (다중 서버 환경 고려)
+  - 어플리케이션 레벨에서 `synchornized`를 설정할 경우, 해당 JVM 내에서만 동시성 제어가 된다. 즉, 여러 WAS가 하나의 DB를 바라보고 있다면, 하나의 WAS가 하나의 스레드 씩 접근 가능하도록 해도 다른 WAS에서 접근하는 것은 막을 수 없기 때문임
+  - **따라서 데이터베이스 레벨에서의 락을 설정해야 함**
