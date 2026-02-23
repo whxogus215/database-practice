@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -27,6 +28,9 @@ public class EventWithLock {
     private LocalDateTime eventDate;
     private int maxParticipants;
     private int currentParticipants;
+
+    @Version // 낙관적 락을 위한 버전 필드
+    private Long version;
 
     @Builder
     public EventWithLock(String name, String description, LocalDateTime eventDate, int maxParticipants) {
