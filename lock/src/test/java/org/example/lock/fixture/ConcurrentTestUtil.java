@@ -1,4 +1,4 @@
-package org.example.lock.deadlock.fixture;
+package org.example.lock.fixture;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -17,7 +17,6 @@ public class ConcurrentTestUtil {
         void join(Long eventId, Long memberId) throws Exception;
     }
 
-
     public static void executeConcurrentJoins(
         Long eventId,
         List<Member> members,
@@ -26,11 +25,10 @@ public class ConcurrentTestUtil {
         ExecutorService executorService = Executors.newFixedThreadPool(32);
         CountDownLatch latch = new CountDownLatch(members.size());
 
-        for (int i = 0; i < members.size(); i++) {
-            final int index = i;
+        for (Member member : members) {
             executorService.submit(() -> {
                 try {
-                    joinTask.join(eventId, members.get(index).getId());
+                    joinTask.join(eventId, member.getId());
                 } catch (Exception e) {
                     log.error("이벤트 참가 실패: {}", e.getMessage());
                 } finally {

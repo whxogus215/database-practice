@@ -1,15 +1,14 @@
 package org.example.lock.deadlock.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.example.lock.config.IntegrationTest;
 import org.example.lock.deadlock.entity.Event;
 import org.example.lock.deadlock.entity.Member;
-import org.example.lock.deadlock.fixture.ConcurrentTestUtil;
-import org.example.lock.deadlock.fixture.TestFixture;
+import org.example.lock.fixture.ConcurrentTestUtil;
+import org.example.lock.fixture.TestFixture;
 import org.example.lock.deadlock.repository.EventParticipantRepository;
 import org.example.lock.deadlock.repository.EventRepository;
 import org.example.lock.deadlock.repository.MemberRepository;
