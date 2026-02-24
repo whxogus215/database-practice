@@ -23,7 +23,7 @@ public class NamedLockEventFacade {
         int tryCount = 1;
         String lockKey = String.format("event:%d", eventId);
 
-        while (tryCount <= 5) {
+        while (tryCount <= 2) {
             try {
                 final Integer lockResult = eventWithLockRepository.getLock(lockKey, LOCK_TIMEOUT_SECONDS);
                 if (lockResult != 1) {

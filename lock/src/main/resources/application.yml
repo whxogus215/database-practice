@@ -4,11 +4,13 @@ spring:
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 64 # 네임드 락 사용 시, 커넥션 고갈 문제 해결을 위한 풀 사이즈 늘리기
   jpa:
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
-        format_sql: true
-        show_sql : true
+#        format_sql: true
+#        show_sql : true
         dialect: org.hibernate.dialect.MySQL8Dialect

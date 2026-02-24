@@ -109,7 +109,7 @@ class EventJoinServiceTest {
     }
 
     @Test
-    @DisplayName("네임드 락으로 150명 동시 참가 테스트")
+    @DisplayName("네임드 락으로 100명 동시 참가 테스트")
     void namedLockTest() throws InterruptedException {
         // when
         long startTime = System.currentTimeMillis();
