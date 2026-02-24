@@ -18,4 +18,10 @@ public interface EventWithLockRepository extends JpaRepository<EventWithLock, Lo
     @Lock(LockModeType.OPTIMISTIC)
     @Query("select e from EventWithLock e where e.id = :id")
     Optional<EventWithLock> findByIdWithOptimisticLock(Long id);
+
+    @Query(value = "SELECT GET_LOCK(:key, :timeoutSeconds)", nativeQuery = true)
+    Integer getLock(String key, int timeoutSeconds);
+
+    @Query(value = "SELECT RELEASE_LOCK(:key)", nativeQuery = true)
+    Integer releaseLock(String key);
 }

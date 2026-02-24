@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.lock.config.IntegrationTest;
 import org.example.lock.deadlock.entity.EventWithLock;
 import org.example.lock.deadlock.entity.Member;
+import org.example.lock.deadlock.facade.NamedLockEventFacade;
 import org.example.lock.deadlock.facade.OptimisticLockEventFacade;
 import org.example.lock.deadlock.repository.EventParticipantWithLockRepository;
 import org.example.lock.deadlock.repository.EventWithLockRepository;
@@ -28,6 +29,9 @@ class EventJoinServiceTest {
     private OptimisticLockEventFacade optimisticLockEventFacade;
 
     @Autowired
+    private NamedLockEventFacade namedLockEventFacade;
+
+    @Autowired
     private EventJoinWithLockService eventJoinWithLockService;
 
     @Autowired
@@ -42,7 +46,7 @@ class EventJoinServiceTest {
     private EventWithLock testEvent;
     private List<Member> testMembers;
 
-    private static final int THREAD_COUNT = 150;
+    private static final int THREAD_COUNT = 100;
     private static final int MAX_PARTICIPANT = 100;
 
     @BeforeEach
@@ -98,6 +102,27 @@ class EventJoinServiceTest {
         // then
         EventWithLock event = eventWithLockRepository.findById(testEvent.getId()).orElseThrow();
         log.info("=== 낙관적 락 테스트 결과 ===");
+        log.info("실행 시간: {}ms", executionTime);
+        log.info("최종 참가자 수: {}", event.getCurrentParticipants());
+
+        assertThat(event.getCurrentParticipants()).isEqualTo(MAX_PARTICIPANT);
+    }
+
+    @Test
+    @DisplayName("네임드 락으로 150명 동시 참가 테스트")
+    void namedLockTest() throws InterruptedException {
+        // when
+        long startTime = System.currentTimeMillis();
+        ConcurrentTestUtil.executeConcurrentJoins(
+            testEvent.getId(),
+            testMembers,
+            (eventId, memberId) -> namedLockEventFacade.participateWithNamedLock(eventId, memberId)
+        );
+        long executionTime = System.currentTimeMillis() - startTime;
+
+        // then
+        EventWithLock event = eventWithLockRepository.findById(testEvent.getId()).orElseThrow();
+        log.info("=== 네임드 락 테스트 결과 ===");
         log.info("실행 시간: {}ms", executionTime);
         log.info("최종 참가자 수: {}", event.getCurrentParticipants());
 

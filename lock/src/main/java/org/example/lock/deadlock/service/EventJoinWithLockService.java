@@ -56,4 +56,22 @@ public class EventJoinWithLockService {
                                                                              .build();
         eventParticipantRepository.save(participant);
     }
+
+    @Transactional
+    public void joinEventWithNamedLock(Long eventId, Long memberId) {
+        final EventWithLock event = eventRepository.findByIdWithOptimisticLock(eventId)
+                                                   .orElseThrow(() -> new EntityNotFoundException("이벤트를 찾을 수 없습니다."));
+
+        final Member member = memberRepository.findById(memberId)
+                                              .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다."));
+
+        event.increaseParticipants();
+        eventRepository.saveAndFlush(event);
+
+        final EventParticipantWithLock participant = EventParticipantWithLock.builder()
+                                                                             .event(event)
+                                                                             .member(member)
+                                                                             .build();
+        eventParticipantRepository.save(participant);
+    }
 }
