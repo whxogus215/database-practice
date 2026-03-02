@@ -22,6 +22,7 @@
 
 1. [Mission 1: Deadlock](./MISSION_1.md)
 2. [Mission 2: Pessimistic Lock & Optimistic Lock](./MISSION_2.md)
+3[Mission 3: Named Lock](./MISSION_3.md)
 
 ---
 
