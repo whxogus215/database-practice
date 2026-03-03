@@ -106,7 +106,7 @@ public void joinEventWithNamedLock(Long eventId, Long memberId) {
 <img src="images/m3/named_lock_connection_error_log_32.png" width="600" height="80">
 - 커넥션 풀 크기가 32개일 때
 <img src="images/m3/named_lock_connection_result_64.png" width="600" height="80">
-- 커넥션 풀 크기가 32개일 때
+- 커넥션 풀 크기가 64개일 때
 
 ### 고민해 볼 점에 대한 답변
 - **커넥션 풀 고갈 문제:** 네임드 락을 사용할 때, 기본 HikariCP 커넥션 풀 사이즈(보통 10개)를 그대로 쓰면 10명 동시 요청 시 **커넥션 타임아웃(Connection is not available)** 에러가 발생할 확률이 높습니다. 원인이 무엇이고, 락 전용 데이터소스(DataSource)를 분리해야 하는 이유는 무엇일까요?
