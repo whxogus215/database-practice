@@ -1,0 +1,30 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+#        format_sql: true
+#        show_sql : true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  lock-datasource:
+    url: jdbc:mysql://localhost:3306/lock_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: test
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 16 # 네임드 락 사용을 위한 커넥션 풀 크기
+      pool-name: lock-pool
+  biz-datasource:
+    url: jdbc:mysql://localhost:3306/lock_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: test
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 16 # 비즈니스 로직을 위한 커넥션 풀 크기
+      pool-name: biz-pool
+
+logging:
+  level:
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    com.zaxxer.hikari: TRACE
