@@ -1,16 +1,14 @@
 package org.example.lock.deadlock.facade;
 
-import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.lock.deadlock.repository.lock.NamedLockRepository;
 import org.example.lock.deadlock.service.EventJoinWithLockService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class MultiCpNamedLockEventFacade {
 
@@ -19,6 +17,12 @@ public class MultiCpNamedLockEventFacade {
 
     private final EventJoinWithLockService eventJoinWithLockService;
     private final NamedLockRepository namedLockRepository;
+
+    public MultiCpNamedLockEventFacade(EventJoinWithLockService eventJoinWithLockService,
+                                       @Qualifier("jdbcNamedLockRepository") NamedLockRepository namedLockRepository) {
+        this.eventJoinWithLockService = eventJoinWithLockService;
+        this.namedLockRepository = namedLockRepository;
+    }
 
     @Transactional(transactionManager = "lockTransactionManager")
     public void participateWithNamedLock(Long eventId, Long memberId) throws InterruptedException {
