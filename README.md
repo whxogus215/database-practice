@@ -21,7 +21,8 @@
 |:----------|:-------------------------------------------------------------------------------------|:--------------------------------------------|:--------------------|
 | 트랜잭션 격리수준 | [transaction](https://github.com/whxogus215/database-practice/tree/main/transaction) | 체인소맨 세계관의 임무 시스템 개발                         | 25.09.29 ~ 25.10.12 |
 | DB 시스템 설계 | [design](https://github.com/whxogus215/database-practice/tree/main/design)           | AI를 활용한 화이트보드 방식의 DB 시스템 설계 면접              | 25.11.03 ~ 26.01.14 |
-| 락 동시성 제어 | [lock](https://github.com/whxogus215/database-practice/tree/main/lock)               | SpringBoot, MySQL 환경에서 락을 활용한 다양한 동시성 문제 해결 | 26.01.15 ~ ing      |
+| 락 동시성 제어 | [lock](https://github.com/whxogus215/database-practice/tree/main/lock)               | SpringBoot, MySQL 환경에서 락을 활용한 다양한 동시성 문제 해결 | 26.01.15 ~ 26.03.13 |
 
 ## 📖 학습 자료
 - [인프런 - 5천억건이 넘는 금융 데이터를 처리하는 토스 개발자에게 배우는 MySQL](https://www.inflearn.com/course/5%EC%B2%9C%EC%96%B5%EA%B1%B4%EC%9D%B4-%EB%84%98%EB%8A%94-%EA%B8%88%EC%9C%B5-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%A5%BC-%EC%B2%98%EB%A6%AC%ED%95%98/dashboard)
+- [인프런 - 6주 완성! 백엔드 이력서 차별화 전략 4가지](https://www.inflearn.com/course/6%EC%A3%BC%EC%99%84%EC%84%B1-%EB%B0%B1%EC%97%94%EB%93%9C-%EC%9D%B4%EB%A0%A5%EC%84%9C-%EB%8F%8B%EB%B3%B4%EC%9D%B4%EB%8A%94%EB%B2%95/dashboard)
